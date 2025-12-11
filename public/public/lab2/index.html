@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Лабораторна робота 2 - Файли</title>
+</head>
+<body>
+<h2>Завантаження файлу</h2>
+<form action="process.php" method="POST" enctype="multipart/form-data">
+    Оберіть файл: <input type="file" name="uploadedFile"><br>
+    <input type="submit" value="Завантажити">
+</form>
+
+<h2>Запис у файл</h2>
+<form action="text.php" method="POST">
+    Введіть текст: <textarea name="logText"></textarea><br>
+    <input type="submit" value="Записати">
+</form>
+
+<a href="list.php">Список файлів</a>
+</body>
+</html>

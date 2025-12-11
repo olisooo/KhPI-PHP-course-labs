@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Завдання 3: Форма</title>
+</head>
+<body>
+<h1>Завдання 3: Робота з $_SERVER</h1>
+<p>Ця форма відправить POST-запит на `server.php`.</p>
+<p>Якщо ви спробуєте відкрити `server.php` напряму (GET-запитом), вас перенаправить назад.</p>
+
+<form action="server.php" method="POST">
+    <label for="data">Тестові дані:</label>
+    <input type="text" id="data" name="test_data" value="Приклад даних">
+    <button type="submit">Надіслати POST-запит</button>
+</form>
+<a href="../index.html">На головну</a>
+</body>
+</html>
