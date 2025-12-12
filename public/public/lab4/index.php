@@ -83,8 +83,8 @@ class Category
 
 $category = new Category("Комп'ютерна техніка");
 $category->addProduct($product1);
-$category->addProduct($product2); // Додаємо звичайний товар
-$category->addProduct($discountedProduct1); // Додаємо товар зі знижкою
+$category->addProduct($product2); 
+$category->addProduct($discountedProduct1); 
 
 echo $category->getInfo();
 
