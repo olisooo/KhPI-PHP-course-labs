@@ -1,91 +1,96 @@
 <?php
 
-interface AccountInterface {
-    public function deposit($amount);
-    public function withdraw($amount);
-    public function getBalance();
-}
+class Product {
+    public string $name;
+    protected float $price;
+    public string $description;
 
-class BankAccount implements AccountInterface {
-    const MIN_BALANCE = 0;
-
-    protected $balance;
-    protected $currency;
-
-    public function __construct($currency, $initialBalance = 0) {
-        $this->currency = $currency;
-        $this->balance = $initialBalance;
-    }
-
-    public function getBalance() {
-        return $this->balance . " " . $this->currency;
-    }
-
-    public function deposit($amount) {
-        if ($amount < 0) {
-            throw new Exception("Помилка: Сума поповнення не може бути від'ємною.");
+    function __construct(string $name, float $price, string $description) {
+        if ($price < 0) {
+            // Перевірка на від'ємну ціну
+            throw new InvalidArgumentException("Ціна не може бути від'ємною");
         }
-        $this->balance += $amount;
-        echo "Поповнено: $amount {$this->currency}.<br>";
+        $this->name = $name;
+        $this->price = $price;
+        $this->description = $description;
     }
 
-    public function withdraw($amount) {
-        if ($amount < 0) {
-            throw new Exception("Помилка: Сума зняття не може бути від'ємною.");
+    public function getInfo(): string {
+        return "<br>Назва: {$this->name}<br>
+       Ціна: {$this->price} грн<br>
+       Опис: {$this->description}<br>";
+    }
+}
+
+class DiscountedProduct extends Product {
+    public float $discount;
+
+    function __construct(string $name, float $price, string $description, float $discount) {
+        // Виклик конструктора батьківського класу
+        parent::__construct($name, $price, $description);
+        $this->discount = $discount;
+    }
+
+    public function getDiscounted() : float {
+        return $this->price * (1 - $this->discount / 100);
+    }
+
+    public function getInfo() : string {
+        return parent::getInfo() .
+            "Знижка: " . $this->discount . "%<br>" .
+            "Нова ціна: " . $this->getDiscounted() . " грн<br>";
+    }
+
+}
+
+$product1 = new Product("Ноутбук Dell XPS 13", 45000.00, "16GB RAM, i7 12th Gen");
+$product2 = new Product("Монітор LG UltraFine", 15500.00, "27 дюймів, 4K");
+
+$discountedProduct1 = new DiscountedProduct("Клавіатура Logitech MX", 3200.00, "Механічна, бездротова", 15);
+$discountedProduct2 = new DiscountedProduct("Миша Razer DeathAdder", 1800.00, "Ігрова, 20000 DPI", 30);
+
+
+echo "<h2>Тестування окремих товарів</h2>";
+echo "Товар:" . $product1->getInfo() . "<br>";
+echo "Товар:" . $product2->getInfo() . "<br>";
+echo "Товар зі знижкою:" . $discountedProduct1->getInfo() . "<br>";
+echo "Товар зі знижкою:" . $discountedProduct2->getInfo() . "<br>";
+
+class Category
+{
+    public string $name;
+    public array $products;
+
+    public function __construct(string $name) {
+        $this->name = $name;
+        $this->products = [];
+    }
+
+    public function addProduct(Product $product) : void {
+        $this->products[] = $product;
+    }
+
+    public function getInfo(): string {
+        $info = "<h2>Категорія: {$this->name}</h2>";
+        $info .= "<h3>Список товарів:</h3>";
+
+        foreach ($this->products as $product) {
+            $info .= $product->getInfo();
         }
-
-        if (($this->balance - $amount) < self::MIN_BALANCE) {
-            throw new Exception("Недостатньо коштів. Поточний баланс: {$this->getBalance()}.");
-        }
-
-        $this->balance -= $amount;
-        echo "Знято: $amount {$this->currency}.<br>";
+        return $info;
     }
 }
 
-class SavingsAccount extends BankAccount {
-    public static $interestRate = 0.05;
+$category = new Category("Комп'ютерна техніка");
+$category->addProduct($product1);
+$category->addProduct($product2); // Додаємо звичайний товар
+$category->addProduct($discountedProduct1); // Додаємо товар зі знижкою
 
-    public function applyInterest() {
-        $interest = $this->balance * self::$interestRate;
-        $this->balance += $interest;
-        echo "Нараховано відсотки (" . (self::$interestRate * 100) . "%): +$interest {$this->currency}.<br>";
-    }
-}
+echo $category->getInfo();
 
-echo "<h2>Тест 1: Звичайний рахунок</h2>";
+$discountCategory = new Category("Акційні пропозиції");
+$discountCategory->addProduct($discountedProduct1);
+$discountCategory->addProduct($discountedProduct2);
 
-try {
-    $account = new BankAccount("USD", 100);
-    echo "Початковий баланс: " . $account->getBalance() . "<br>";
-
-    $account->deposit(50);
-    echo "Баланс після поповнення: " . $account->getBalance() . "<br>";
-
-    $account->withdraw(30);
-    echo "Баланс після зняття: " . $account->getBalance() . "<br>";
-
-    echo "<b>Спроба зняти 1000 USD:</b><br>";
-    $account->withdraw(1000);
-
-} catch (Exception $e) {
-    echo "Спіймано виняток: " . $e->getMessage() . "<br>";
-}
-
-echo "<h2>Тест 2: Накопичувальний рахунок</h2>";
-
-try {
-    $savings = new SavingsAccount("EUR", 2000);
-    echo "Початковий баланс: " . $savings->getBalance() . "<br>";
-
-    $savings->applyInterest();
-    echo "Баланс після нарахування відсотків: " . $savings->getBalance() . "<br>";
-
-    echo "<b>Спроба поповнити на -100 EUR:</b><br>";
-    $savings->deposit(-100);
-
-} catch (Exception $e) {
-    echo "Спіймано виняток: " . $e->getMessage() . "<br>";
-}
+echo $discountCategory->getInfo();
 ?>
-
